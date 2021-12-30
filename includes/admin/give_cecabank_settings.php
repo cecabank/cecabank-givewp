@@ -129,22 +129,6 @@ class Give_Cecabank_Settings
                 'row_classes' => 'give-cecabank-key',
             ),
             array(
-                'name' => __('Título', 'give_cecabank'),
-                'desc' => __('Título mostrado al cliente durante el proceso de compra con este método de pago.', 'give_cecabank'),
-                'id' => 'cecabank_title',
-                'default' => __('Tarjeta', 'give_cecabank'),
-                'type' => 'text',
-                'row_classes' => 'give-cecabank-key',
-            ),
-            array(
-                'name' => __('Descripción', 'give_cecabank'),
-                'desc' => __('Descripción mostrada al cliente durante el proceso de compra con este método de pago.', 'give_cecabank'),
-                'id' => 'cecabank_description',
-                'default' => __('Paga con tu tarjeta', 'give_cecabank'),
-                'type' => 'text',
-                'row_classes' => 'give-cecabank-key',
-            ),
-            array(
                 'name' => __('Entorno', 'give_cecabank'),
                 'desc' => __('Entorno que se usará al realizar las transacciones.', 'give_cecabank'),
                 'id' => 'cecabank_environment',
