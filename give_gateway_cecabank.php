@@ -84,7 +84,7 @@ if (!class_exists('GiveWP_Gateway_Cecabank')):
           add_action('plugins_loaded', array($this, 'init'));
           add_filter('query_vars', array($this, 'query_vars'), 10, 1);
           add_action('parse_request', array($this, 'parse_request'), 10, 1);
-          // add_filter( 'give_recurring_available_gateways', [ $this, 'add_cecabank_recurring_support' ], 99 );
+          add_filter( 'give_recurring_available_gateways', [ $this, 'add_cecabank_recurring_support' ], 99 );
     
         }
 
@@ -107,11 +107,11 @@ if (!class_exists('GiveWP_Gateway_Cecabank')):
          * Add recurring support for cecabank.
          *
          */
-        // public function add_cecabank_recurring_support( $gateways ) {
-        //     $gateways['cecabank'] = 'Cecabank_Recurring';
-        //     
-        //     return $gateways;
-        // }
+        public function add_cecabank_recurring_support( $gateways ) {
+            $gateways['cecabank'] = 'Cecabank_Recurring';
+            
+            return $gateways;
+        }
     
         public function query_vars($vars){
             $vars[] = 'cecabank-payment-pg';
@@ -241,8 +241,8 @@ if (!class_exists('GiveWP_Gateway_Cecabank')):
     
           // Load the file only when recurring donations addo-on is enabled.
           if ( defined( 'GIVE_RECURRING_VERSION' ) ) {
-              // include GIVE_RECURRING_PLUGIN_DIR . '/includes/gateways/give-recurring-gateway.php';
-              // include GIVE_CECABANK_PLUGIN_DIR . '/includes/class_cecabank_recurring.php';
+              include GIVE_RECURRING_PLUGIN_DIR . '/includes/gateways/give-recurring-gateway.php';
+              include GIVE_CECABANK_PLUGIN_DIR . '/includes/class_cecabank_recurring.php';
           }
         }
 

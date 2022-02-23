@@ -479,7 +479,13 @@ class Give_Cecabank_Gateway
         $config = $this-> get_client_config(null);
 
         $cecabank_client = new Cecabank\Client($config);
+
+        $payment_id = $_POST['Num_operacion'];
+        $payment_data = give_get_payment_meta($payment_id);
         $is_recurring = false;
+        if (isset($payment_data['_give_is_donation_recurring']) && $payment_data['_give_is_donation_recurring'] == 1) {
+            $is_recurring = true;
+        }
 
         try {
             $cecabank_client->checkTransaction($_POST);
@@ -494,9 +500,49 @@ class Give_Cecabank_Gateway
             exit;
         }
 
-        $payment_id = $_POST['Num_operacion'];
         $transaction_id = $_POST['Referencia'];
         $payment_amount = give_donation_amount($payment_id);
+
+        if ($is_recurring) {
+            $subscription = give_recurring_get_subscription_by('payment', $payment_id);
+            $total_payments = intval($subscription->get_total_payments());
+            $bill_times     = intval($subscription->bill_times);
+            if (0 === $bill_times || $total_payments < $bill_times) {
+                // Look to see if we have set the transaction ID on the parent payment yet.
+                if (!$subscription->get_transaction_id()) {
+                    // This is the initial transaction payment aka first subscription payment.
+                    $subscription->set_transaction_id($transaction_id);
+                    $args = [
+                        'status'     => 'active',
+                        'profile_id' => $transaction_id,
+                    ];
+                    $subscription->update($args);
+                } else {
+
+                    $args = array(
+                        'amount'         => $payment_amount,
+                        'transaction_id' => $transaction_id,
+                        'post_date'      => date_i18n('Y-m-d H:i:s', current_time( 'timestamp' ) ),
+                    );
+                    // We have a renewal.
+                    $subscription->add_payment($args);
+                    $subscription->renew();
+
+                    // Update Total Payments as new renewal might have added.
+                    $total_payments = $subscription->get_total_payments();
+
+                    // Check if this subscription is complete.
+                    if ($total_payments >= $bill_times && 0 !== $bill_times) {
+                        $subscription->complete();
+                    }
+                }
+            } else {
+                // Check if this subscription is complete.
+                if ($total_payments >= $bill_times && 0 !== $bill_times) {
+                    $subscription->complete();
+                }
+            }
+        }
 
         $this->publish_payment($payment_id, $transaction_id);
 
