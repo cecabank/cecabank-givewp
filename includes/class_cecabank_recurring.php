@@ -100,7 +100,7 @@ class Cecabank_Recurring extends Give_Recurring_Gateway {
                 'Cifrado' => 'SHA2',
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.0.1'
+                'versionMod' => 'G-0.0.2'
             );
         } else {
             return array(
@@ -113,7 +113,7 @@ class Cecabank_Recurring extends Give_Recurring_Gateway {
                 'Cifrado' => 'SHA2',
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.0.1'
+                'versionMod' => 'G-0.0.2'
             );
         }
     }
