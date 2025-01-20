@@ -48,6 +48,8 @@ if (!class_exists('GiveWP_Gateway_Cecabank')):
          */
         private static $instance;
 
+        public $notices = array();
+
 
         /**
          * Returns the *Singleton* instance of this class.
