@@ -148,7 +148,7 @@ class Give_Cecabank_Gateway
                 'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.0.3'
+                'versionMod' => 'G-0.1.0'
             );
         } else {
             $secret_key = give_get_option('cecabank_secret_key');
@@ -163,7 +163,7 @@ class Give_Cecabank_Gateway
                 'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.0.3'
+                'versionMod' => 'G-0.1.0'
             );
         }
     }
@@ -386,19 +386,27 @@ class Give_Cecabank_Gateway
             'datos_acs_20' => base64_encode( str_replace( '[]', '{}', json_encode( $acs ) ) )
         ));
 
-        $parameter = $cecabank_client->hidden;
-        $parameter['action'] = $cecabank_client->getPath();
-        $parameter['cecabank-payment-pg'] = true;
-        $parameter['URL_OK'] = urlencode($parameter['URL_OK']);
-        $parameter['URL_NOK'] = urlencode($parameter['URL_NOK']);
+        $token = wp_generate_password(64, false, false);
+        set_transient(
+            'give_cecabank_pg_' . $token,
+            array(
+                'action' => $cecabank_client->getPath(),
+                'fields' => $cecabank_client->hidden,
+            ),
+            10 * MINUTE_IN_SECONDS
+        );
 
-        //send to payment page as params
-        $payment_page = site_url() . "/cecabank_payment_pg";
+        $payment_url = add_query_arg(
+            array(
+                'cecabank-payment-pg' => '1',
+                'token'               => $token,
+            ),
+            site_url('/cecabank_payment_pg')
+        );
 
-        $payment_url = add_query_arg($parameter, $payment_page);
         $payment_page = '<script type="text/javascript">
             window.onload = function(){
-                window.parent.location = "' . $payment_url . '";
+                window.parent.location = ' . wp_json_encode($payment_url) . ';
               }
             </script>';
 
@@ -494,13 +502,8 @@ class Give_Cecabank_Gateway
         try {
             $cecabank_client->checkTransaction($_POST);
         } catch (\Exception $e) {
-            give_record_gateway_error(__('Cecabank Error', 'give'), json_encode($_POST), $payment_id);
-            give_set_payment_transaction_id($payment_id, $_POST['Referencia']);
-            give_update_payment_status($payment_id, 'failed');
-            give_insert_payment_note($payment_id, __('Transaction ID: ' . $_POST['Referencia'] . ', error', 'give'));
-            $failedUrl = give_get_failed_transaction_uri('?payment-id=' . $payment_id . '&error_message=error&is_recurring=' . $is_recurring);
-            $failedUrl = str_replace("_wpnonce", "_wponce", $failedUrl);
-            wp_redirect($failedUrl);
+            give_record_gateway_error(__('Cecabank Error', 'give'), wp_json_encode($_POST), $payment_id);
+            status_header(400);
             exit;
         }
 

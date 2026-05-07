@@ -102,7 +102,7 @@ class Cecabank_Recurring extends Give_Recurring_Gateway {
                 'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.0.3'
+                'versionMod' => 'G-0.1.0'
             );
         } else {
             $secret_key = give_get_option('cecabank_secret_key');
@@ -117,7 +117,7 @@ class Cecabank_Recurring extends Give_Recurring_Gateway {
                 'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.0.3'
+                'versionMod' => 'G-0.1.0'
             );
         }
     }
@@ -320,23 +320,31 @@ class Cecabank_Recurring extends Give_Recurring_Gateway {
             'URL_NOK' => $cancel,
             'TipoMoneda' => $cecabank_client->getCurrencyCode($currency),
             'datos_acs_20' => base64_encode( str_replace( '[]', '{}', json_encode( $acs ) ) ),
-			'Tipo_operacion': 'D',
-			'Datos_operaciones': $data
+            'Tipo_operacion' => 'D',
+            'Datos_operaciones' => $data
         ));
 
-        $parameter = $cecabank_client->hidden;
-        $parameter['action'] = $cecabank_client->getPath();
-        $parameter['cecabank-payment-pg'] = true;
-        $parameter['URL_OK'] = urlencode($parameter['URL_OK']);
-        $parameter['URL_NOK'] = urlencode($parameter['URL_NOK']);
+        $token = wp_generate_password(64, false, false);
+        set_transient(
+            'give_cecabank_pg_' . $token,
+            array(
+                'action' => $cecabank_client->getPath(),
+                'fields' => $cecabank_client->hidden,
+            ),
+            10 * MINUTE_IN_SECONDS
+        );
 
-        //send to payment page as params
-        $payment_page = site_url() . "/cecabank_payment_pg";
+        $payment_url = add_query_arg(
+            array(
+                'cecabank-payment-pg' => '1',
+                'token'               => $token,
+            ),
+            site_url('/cecabank_payment_pg')
+        );
 
-        $payment_url = add_query_arg($parameter, $payment_page);
         $payment_page = '<script type="text/javascript">
             window.onload = function(){
-                window.parent.location = "' . $payment_url . '";
+                window.parent.location = ' . wp_json_encode($payment_url) . ';
               }
             </script>';
 

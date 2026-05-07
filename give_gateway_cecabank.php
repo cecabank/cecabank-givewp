@@ -5,7 +5,7 @@
  * Description: Plugin de GiveWP para conectar con la pasarela de Cecabank.
  * Author: Cecabank, S.A.
  * Author URI: https://www.cecabank.es/
- * Version: 0.0.3
+ * Version: 0.1.0
  * Text Domain: givewp_cecabank
  * Domain Path: /i18n/languages/
  *
@@ -36,7 +36,7 @@ if (!defined('GIVE_CECABANK_PLUGIN_DIR')) {
  * Provides an Cecabank GiveWP Payment Gateway.
  *
  * @class 		GiveWP_Gateway_Cecabank
- * @version		0.0.3
+ * @version		0.1.0
  * @author 		Cecabank, S.A.
  */
 

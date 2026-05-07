@@ -118,7 +118,7 @@ class Give_Cecabank_Settings
                 'name' => __('Clave Secreta', 'give_cecabank'),
                 'desc' => __('Clave Secreta dada por Cecabank. Si tiene 8 caracteres se usará el algoritmo SHA2; en otro caso (clave HMAC, normalmente 32 caracteres) se usará HMAC.', 'give_cecabank'),
                 'id' => 'cecabank_secret_key',
-                'type' => 'text',
+                'type' => 'password',
                 'row_classes' => 'give-cecabank-key',
             ),        
             array(

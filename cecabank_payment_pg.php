@@ -1,5 +1,38 @@
+<?php
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+$token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( $_GET['token'] ) ) : '';
+
+if ( ! preg_match( '/^[A-Za-z0-9]{32,128}$/', $token ) ) {
+	wp_die( esc_html__( 'Sesión de pago no válida.', 'givewp_cecabank' ), '', array( 'response' => 400 ) );
+}
+
+$transient_key = 'give_cecabank_pg_' . $token;
+$payload       = get_transient( $transient_key );
+delete_transient( $transient_key );
+
+if ( ! is_array( $payload ) || empty( $payload['action'] ) || empty( $payload['fields'] ) || ! is_array( $payload['fields'] ) ) {
+	wp_die( esc_html__( 'Sesión de pago no válida o expirada.', 'givewp_cecabank' ), '', array( 'response' => 400 ) );
+}
+
+$action_url   = $payload['action'];
+$action_parts = wp_parse_url( $action_url );
+if (
+	! is_array( $action_parts )
+	|| empty( $action_parts['scheme'] )
+	|| 'https' !== strtolower( $action_parts['scheme'] )
+	|| empty( $action_parts['host'] )
+	|| ! preg_match( '/(^|\.)ceca\.es$/i', $action_parts['host'] )
+) {
+	wp_die( esc_html__( 'Destino de pago no válido.', 'givewp_cecabank' ), '', array( 'response' => 400 ) );
+}
+
+$fields = $payload['fields'];
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
 	<meta charset="UTF-8">
@@ -9,27 +42,13 @@
 
 <body>
 	<p>
-		Redirigiendo a Cecabank ...
+		<?php echo esc_html__( 'Redirigiendo a Cecabank ...', 'givewp_cecabank' ); ?>
 	</p>
 
-	<form id="cecabank-form" action="<?php echo $_GET['action']; ?>" method="post">
-		<input type="hidden" name="MerchantID" value="<?php echo $_GET['MerchantID']; ?>" />
-		<input type="hidden" name="AcquirerBIN" value="<?php echo $_GET['AcquirerBIN']; ?>" />
-		<input type="hidden" name="TerminalID" value="<?php echo $_GET['TerminalID']; ?>" />
-		<input type="hidden" name="TipoMoneda" value="<?php echo $_GET['TipoMoneda']; ?>" />
-		<input type="hidden" name="Exponente" value="<?php echo $_GET['Exponente']; ?>" />
-		<input type="hidden" name="Cifrado" value="<?php echo $_GET['Cifrado']; ?>" />
-		<input type="hidden" name="Pago_soportado" value="<?php echo $_GET['Pago_soportado']; ?>" />
-		<input type="hidden" name="versionMod" value="<?php echo $_GET['versionMod']; ?>" />
-		<input type="hidden" name="Idioma" value="<?php echo $_GET['Idioma']; ?>" />
-		<input type="hidden" name="Num_operacion" value="<?php echo $_GET['Num_operacion']; ?>" />
-		<input type="hidden" name="Importe" value="<?php echo $_GET['Importe']; ?>" />
-		<input type="hidden" name="URL_OK" value="<?php echo $_GET['URL_OK']; ?>" />
-		<input type="hidden" name="URL_NOK" value="<?php echo $_GET['URL_NOK']; ?>" />
-		<input type="hidden" name="Descripcion" value="<?php echo $_GET['Descripcion']; ?>" />
-		<input type="hidden" name="datos_acs_20" value="<?php echo $_GET['datos_acs_20']; ?>" />
-		<input type="hidden" name="Firma" value="<?php echo $_GET['Firma']; ?>" />
-		<input type="hidden" name="firma_acs_20" value="<?php echo $_GET['firma_acs_20']; ?>" />
+	<form id="cecabank-form" action="<?php echo esc_url( $action_url ); ?>" method="post">
+		<?php foreach ( $fields as $field_name => $field_value ) : ?>
+			<input type="hidden" name="<?php echo esc_attr( $field_name ); ?>" value="<?php echo esc_attr( $field_value ); ?>" />
+		<?php endforeach; ?>
 	</form>
 	<script type="text/javascript">
 		window.onload = function () {
