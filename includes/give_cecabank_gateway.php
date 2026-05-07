@@ -136,30 +136,34 @@ class Give_Cecabank_Gateway
         }
 
         if ($form_id) {
+            $secret_key = give_get_meta($form_id, 'cecabank_secret_key', true);
+            $cifrado = strlen( (string) $secret_key ) === 8 ? 'SHA2' : 'HMAC';
             return array(
                 'Environment' => give_get_meta($form_id, 'cecabank_environment', true),
                 'MerchantID' => give_get_meta($form_id, 'cecabank_merchant', true),
                 'AcquirerBIN' => give_get_meta($form_id, 'cecabank_acquirer', true),
                 'TerminalID' => give_get_meta($form_id, 'cecabank_terminal', true),
-                'ClaveCifrado' => give_get_meta($form_id, 'cecabank_secret_key', true),
+                'ClaveCifrado' => $secret_key,
                 'Exponente' => '2',
-                'Cifrado' => 'SHA2',
+                'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.0.2'
+                'versionMod' => 'G-0.0.3'
             );
         } else {
+            $secret_key = give_get_option('cecabank_secret_key');
+            $cifrado = strlen( (string) $secret_key ) === 8 ? 'SHA2' : 'HMAC';
             return array(
                 'Environment' => give_get_option('cecabank_environment'),
                 'MerchantID' => give_get_option('cecabank_merchant'),
                 'AcquirerBIN' => give_get_option('cecabank_acquirer'),
                 'TerminalID' => give_get_option('cecabank_terminal'),
-                'ClaveCifrado' => give_get_option('cecabank_secret_key'),
+                'ClaveCifrado' => $secret_key,
                 'Exponente' => '2',
-                'Cifrado' => 'SHA2',
+                'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.0.2'
+                'versionMod' => 'G-0.0.3'
             );
         }
     }
