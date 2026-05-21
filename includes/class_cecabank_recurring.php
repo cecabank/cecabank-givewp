@@ -102,7 +102,7 @@ class Cecabank_Recurring extends Give_Recurring_Gateway {
                 'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.1.0'
+                'versionMod' => 'G-0.1.1'
             );
         } else {
             $secret_key = give_get_option('cecabank_secret_key');
@@ -117,7 +117,7 @@ class Cecabank_Recurring extends Give_Recurring_Gateway {
                 'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.1.0'
+                'versionMod' => 'G-0.1.1'
             );
         }
     }

@@ -148,7 +148,7 @@ class Give_Cecabank_Gateway
                 'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.1.0'
+                'versionMod' => 'G-0.1.1'
             );
         } else {
             $secret_key = give_get_option('cecabank_secret_key');
@@ -163,7 +163,7 @@ class Give_Cecabank_Gateway
                 'Cifrado' => $cifrado,
                 'Idioma' => $lang,
                 'Pago_soportado' => 'SSL',
-                'versionMod' => 'G-0.1.0'
+                'versionMod' => 'G-0.1.1'
             );
         }
     }
@@ -488,7 +488,8 @@ class Give_Cecabank_Gateway
         if (empty($_POST['Num_operacion'])) {
             return;
         }
-        $config = $this-> get_client_config(null);
+        $config = $this->get_client_config(null);
+        $config['Cifrado'] = 'SHA2';
 
         $cecabank_client = new Cecabank\Client($config);
 
